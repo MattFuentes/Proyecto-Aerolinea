@@ -4,13 +4,14 @@
 const newDestiny = document.querySelector('#newDestiny'),
       selectContinents = document.querySelector('#selectContinents'),
       selectBaggage = document.querySelector('#selectBaggage'),
-      selectType = document.querySelector('#selectType'),
+      inputType = document.querySelector('input[name="type_go"]'),
+      inputTypeAll = document.querySelectorAll('input[name="type_go"]'),
       valueUS = document.querySelector('#selectValueUSD'),
       valueAR = document.querySelector('#selectValueARS'),
       newDestinys = [],
       flys = [],
       countries = [];
-
+let inputResult;
 /* Clase vuelos para el inicio de la reserva */
 class Fly {
     constructor(originFly, destinyFly, travelTime, baggage, type){
@@ -24,9 +25,9 @@ class Fly {
 /* Clase Paises para tabla con JSON*/
 class Country {
     constructor(id, continent, country, price){
-        this.id = id;
-        this.continent = continent;
-        this.country = country;
+        this.id = parseFloat(id);
+        this.continent = continent.toUpperCase();
+        this.country = country.toUpperCase();
         this.price = parseFloat(price)
     }
 }
@@ -67,7 +68,7 @@ const getDestiny = (event) =>{
         container.innerHTML = '';
     } else {
             if((countries.find( e => e == destinyFlight.value.toUpperCase())) && (countries.find( e => e == originFlight.value.toUpperCase()))){
-                    newDestinys.push(new Fly(countryOrigin, countryDestiny, travelTimeEnter, selectBaggage.value, selectType.value ));
+                    newDestinys.push(new Fly(countryOrigin, countryDestiny, travelTimeEnter, selectBaggage.value, itemResult ));
                     for (const newDestiny of newDestinys){
                         Swal.fire({
                             title: 'Reserva realizada!',
@@ -106,7 +107,7 @@ prices == null
 const divInner = document.querySelector('#divInner');
 divInner.innerHTML += `<h4 style='color:green'>Divisa: ${prices}</h4>`;
 
-/* TABLA DE CONTINENTES */
+/* Json Paises/Continentes/Precio */
 const tableContinents = document.querySelector('#listaContinentes tbody');
 const loadCountry = () => {
     fetch('https://raw.githubusercontent.com/MattFuentes/CursoJS/main/paises.json')
@@ -154,14 +155,15 @@ baggage.forEach(function(equip){
     selectBaggage.appendChild(equipaj);
 })
 
-/* Tipo vuelo Select */
-const typeFly = ['Solo Ida', 'Ida y Vuelta'];
-typeFly.forEach(function(typeF){
-    const typeFlight = document.createElement('option');
-    typeFlight.text = typeF;
-    typeFlight.value = typeF;
-    selectType.appendChild(typeFlight);
-})
+/* Tipo de vuelo (Ida o Vuelta) */
+if (inputType) {
+    inputTypeAll.forEach((elem) => {
+      elem.addEventListener('change', function(event) {
+        itemResult = event.target.value;
+      });
+    });
+  }
+
 
 /* Origen Autocomplete */
 const sortedCountries = countries.sort();
@@ -169,7 +171,6 @@ const originFlight = document.querySelector('#originFly');
 originFlight.addEventListener('keyup', (e) => {
     removeElements();
         for(let i of sortedCountries){
-            console.log(i)
             if(i.toLowerCase().startsWith(originFlight.value.toLowerCase()) && originFlight.value != ''){
             const listItemOr = document.createElement('li');
             listItemOr.classList.add('list-items');
